@@ -5,50 +5,56 @@ import data from "../../../data.json";
 import { useState, useEffect } from "react";
 
 export default function JobListing() {
+  interface Data {
+    id: number;
+    company: string;
+    logo: string;
+    new: boolean;
+    featured: boolean;
+    position: string;
+    role: string;
+    level: string;
+    postedAt: string;
+    contract: string;
+    location: string;
+    languages: string[];
+    tools: string[];
+  }
+
+  const [filteredArray, setFilteredArray] = useState<Data[]>([]);
   const [showList, setShowList] = useState(data);
   const [tags, setTags] = useState<string[]>([]);
+  const [tag, setTag] = useState("");
 
   const filterList = () => {
-    interface Data {
-      id: number;
-      company: string;
-      logo: string;
-      new: boolean;
-      featured: boolean;
-      position: string;
-      role: string;
-      level: string;
-      postedAt: string;
-      contract: string;
-      location: string;
-      languages: string[];
-      tools: string[];
-    }
-    const filteredArray: Data[] = [];
     showList.map((obj: Data) => {
       const values = Object.values(obj);
 
       values.map((elem) => {
-        if (tags.includes(elem)) {
-          filteredArray.push(obj);
+        if (elem === tag) {
+          if (!filteredArray.includes(obj)) filteredArray.push(obj);
         }
         if (Array.isArray(elem))
           elem.map((string: string) => {
-            if (tags.includes(string)) {
-              filteredArray.push(obj);
+            if (string === tag) {
+              if (!filteredArray.includes(obj)) filteredArray.push(obj);
             }
           });
       });
     });
-    setShowList(filteredArray);
   };
   const handleTags = (string: string) => {
-    if (!tags.includes(string)) setTags([...tags, string]);
+    if (!tags.includes(string)) {
+      setTags([...tags, string]);
+      setTag(string);
+    }
   };
-
   useEffect(() => {
     filterList();
     if (tags.length === 0) setShowList(data);
+    if (tags.length > 0) setShowList(filteredArray);
+
+    setFilteredArray([]);
   }, [tags]);
 
   return (
